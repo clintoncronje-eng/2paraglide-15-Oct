@@ -1384,41 +1384,6 @@ const SEED_WEATHER_ALERTS: WeatherAlertNotification[] = [
         </div>
       </header>
 
-      {/* Secondary Workspace Role Switcher Toolbar (Below Header) */}
-      <div className="bg-[#181818] text-[#FFFFFF] border-b border-[#8A8A8A]/25 px-6 py-2.5">
-        <div className="max-w-[1280px] mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {(
-              [
-                { id: 'script', label: '00. Master Architecture Script' },
-                { id: 'marketplace', label: 'Public Marketplace' },
-                { id: 'owner_dashboard', label: '1. Owner Dashboard' },
-                { id: 'pilot_dashboard', label: '2. Pilot Dashboard' },
-                { id: 'flyer_dashboard', label: '3. Flyer Dashboard' },
-                { id: 'partner_dashboard', label: '4. Partner QR Dashboard' },
-                { id: 'security_audit', label: 'Security & Red Team Audit' }
-              ] as { id: WorkspaceView; label: string }[]
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveView(tab.id)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                  activeView === tab.id
-                    ? 'bg-[#E62B1E] text-[#FFFFFF] font-semibold'
-                    : 'text-[#8A8A8A] hover:bg-[#111111] hover:text-[#FFFFFF]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="text-xs font-mono text-[#8A8A8A] hidden xl:block">
-            QR Attribution: <span className="text-[#E62B1E] font-semibold">{activePartnerCode}</span>
-          </div>
-        </div>
-      </div>
-
       {/* Feedback Toast */}
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 bg-[#181818] text-[#FFFFFF] px-4 py-2.5 rounded-lg shadow-xl border border-[#E62B1E] text-xs font-medium">
@@ -1459,6 +1424,7 @@ const SEED_WEATHER_ALERTS: WeatherAlertNotification[] = [
             countries={countries}
             onToggleCountryStatus={handleToggleCountryStatus}
             onUpdateBookingStatus={handleUpdateBookingStatus}
+            onNavigate={setActiveView}
           />
         )}
 

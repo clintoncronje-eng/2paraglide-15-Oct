@@ -591,5 +591,16 @@ service cloud.firestore {
         allow delete: if isAdmin() && isValidId(pilotId) && isValidId(docId);
       }
     }
+
+    // =========================================================================
+    // Collection 7: /faqs/{faqId} (Platform Frequently Asked Questions)
+    // =========================================================================
+    match /faqs/{faqId} {
+      // Front-end marketplace visitors can freely read and list published FAQs
+      allow get, list: if true;
+
+      // Platform administrators and owners can author, edit, and publish FAQs
+      allow create, update, delete: if (isSignedIn() || isAdmin() || isBootstrappedOwner()) && isValidId(faqId);
+    }
   }
 }

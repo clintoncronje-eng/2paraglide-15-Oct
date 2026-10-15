@@ -3,10 +3,14 @@ import {
   BookingData,
   CountryExpansionConfig,
   FlightSlotData,
-  QrCampaignData
+  QrCampaignData,
+  WorkspaceView,
+  FaqItem
 } from '../types';
 import { formatCurrency } from '../lib/validation';
-import { Download } from 'lucide-react';
+import { Download, FileCode2, ShieldAlert, ArrowRight } from 'lucide-react';
+import { OwnerFaqManager } from './OwnerFaqManager';
+import { INITIAL_FAQS } from '../data/initialFaqs';
 
 interface OwnerDashboardViewProps {
   bookings: BookingData[];
@@ -21,6 +25,11 @@ interface OwnerDashboardViewProps {
     bookingId: string,
     status: 'completed' | 'cancelled'
   ) => Promise<void>;
+  onNavigate?: (view: WorkspaceView) => void;
+  faqs?: FaqItem[];
+  onUpdateFaqs?: (newFaqs: FaqItem[]) => void;
+  onPublishFaqs?: (faqsToPublish: FaqItem[]) => Promise<void> | void;
+  lastFaqPublishedAt?: string | null;
 }
 
 interface PilotVerificationEntry {
@@ -38,7 +47,12 @@ export const OwnerDashboardView: React.FC<OwnerDashboardViewProps> = ({
   qrCampaigns,
   countries,
   onToggleCountryStatus,
-  onUpdateBookingStatus
+  onUpdateBookingStatus,
+  onNavigate,
+  faqs = INITIAL_FAQS,
+  onUpdateFaqs = () => {},
+  onPublishFaqs = () => {},
+  lastFaqPublishedAt
 }) => {
   const [ledgerFilter, setLedgerFilter] = useState<'ALL' | 'confirmed' | 'completed' | 'cancelled'>('ALL');
   const [pilotQueue, setPilotQueue] = useState<PilotVerificationEntry[]>([
@@ -121,9 +135,9 @@ export const OwnerDashboardView: React.FC<OwnerDashboardViewProps> = ({
   };
 
   return (
-    <div className="max-w-[1280px] mx-auto px-6 py-10 space-y-12">
+    <div className="max-w-[1280px] mx-auto px-6 py-10 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#8A8A8A]/25 pb-6">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-[#8A8A8A]/25 pb-6">
         <div className="space-y-1">
           <div className="text-xs font-mono text-[#E62B1E]">
             DASHBOARD 01 · EXECUTIVE &amp; TREASURY CONSOLE
@@ -136,13 +150,87 @@ export const OwnerDashboardView: React.FC<OwnerDashboardViewProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={handleExportCsv}
-          className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#FFFFFF] bg-[#E62B1E] hover:bg-[#c82317] rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {onNavigate && (
+            <>
+              <button
+                type="button"
+                onClick={() => onNavigate('script')}
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-[#FFFFFF] bg-[#181818] hover:bg-[#242424] border border-[#8A8A8A]/30 hover:border-[#E62B1E] rounded-lg transition-all cursor-pointer shadow-sm group"
+                title="View 00. Master Architecture Script"
+              >
+                <FileCode2 className="w-4 h-4 text-[#E62B1E] group-hover:scale-110 transition-transform" />
+                <span>00. Master Architecture Script</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate('security_audit')}
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-[#FFFFFF] bg-[#181818] hover:bg-[#242424] border border-[#8A8A8A]/30 hover:border-emerald-500 rounded-lg transition-all cursor-pointer shadow-sm group"
+                title="View Security & Red Team Audit"
+              >
+                <ShieldAlert className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span>Security &amp; Red Team Audit</span>
+              </button>
+            </>
+          )}
+
+          <button
+            onClick={handleExportCsv}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#FFFFFF] bg-[#E62B1E] hover:bg-[#c82317] rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer shadow-sm"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export Escrow Ledger CSV</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Architecture & Security Direct Access Banners */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          onClick={() => onNavigate && onNavigate('script')}
+          className="bg-[#181818] border border-[#8A8A8A]/25 hover:border-[#E62B1E]/60 rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer transition-all hover:bg-[#1f1f1f] group shadow-sm"
         >
-          <Download className="w-4 h-4" />
-          <span>Export Escrow Ledger CSV</span>
-        </button>
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-lg bg-[#E62B1E]/15 border border-[#E62B1E]/40 flex items-center justify-center shrink-0">
+              <FileCode2 className="w-5 h-5 text-[#E62B1E]" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-[#FFFFFF] group-hover:text-[#E62B1E] transition-colors flex items-center gap-1.5">
+                <span>00. Master Architecture Script</span>
+                <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <p className="text-xs text-[#8A8A8A] mt-0.5">
+                Full technical specification, escrow split logic, data architecture, and 12-chapter blueprint.
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono text-[#E62B1E] bg-[#E62B1E]/10 px-2.5 py-1 rounded border border-[#E62B1E]/30 shrink-0">
+            SPEC →
+          </span>
+        </div>
+
+        <div
+          onClick={() => onNavigate && onNavigate('security_audit')}
+          className="bg-[#181818] border border-[#8A8A8A]/25 hover:border-emerald-500/60 rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer transition-all hover:bg-[#1f1f1f] group shadow-sm"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center shrink-0">
+              <ShieldAlert className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-[#FFFFFF] group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                <span>Security &amp; Red Team Audit</span>
+                <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <p className="text-xs text-[#8A8A8A] mt-0.5">
+                Zero-trust Firestore security rules, adversarial attack simulations, and audit test results.
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 px-2.5 py-1 rounded border border-emerald-500/30 shrink-0">
+            AUDIT PASS →
+          </span>
+        </div>
       </div>
 
       {/* 4-Column Executive Treasury KPI Strip */}

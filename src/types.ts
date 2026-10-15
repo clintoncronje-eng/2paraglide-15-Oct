@@ -316,5 +316,19 @@ export interface FlyerAlertPreferences {
   pilotBroadcasts: boolean;
 }
 
+export type FaqCategory =
+  | 'booking_escrow'
+  | 'safety_pilots'
+  | 'weather_cancellation'
+  | 'partners_operators'
+  | 'equipment_passenger';
 
-
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  category: FaqCategory;
+  order: number;
+  published: boolean;
+  updatedAt?: string;
+}

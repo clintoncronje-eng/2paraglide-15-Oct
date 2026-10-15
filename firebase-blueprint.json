@@ -770,6 +770,10 @@
     "/pilotProfiles/{pilotId}/private/{docId}": {
       "schema": "PilotBankingPrivate",
       "description": "Isolated private banking and IBAN payout credentials (owner/admin only)."
+    },
+    "/faqs/{faqId}": {
+      "schema": "FaqItem",
+      "description": "Published and draft platform frequently asked questions managed by platform owner."
     }
   }
 }
